@@ -1,0 +1,23 @@
+c Pigeonhole principle formula for 3 pigeons and 4 holes
+c Generated with `cnfgen`
+c (C) 2012-2019 Massimo Lauria <massimo.lauria@uniroma1.it>
+c https://massimolauria.net/cnfgen
+c
+c COMMAND LINE: cnfgen -o php0.sat php 3 4
+c
+p cnf 12 15
+1 2 3 4 0
+5 6 7 8 0
+9 10 11 12 0
+-1 -5 0
+-1 -9 0
+-5 -9 0
+-2 -6 0
+-2 -10 0
+-6 -10 0
+-3 -7 0
+-3 -11 0
+-7 -11 0
+-4 -8 0
+-4 -12 0
+-8 -12 0
