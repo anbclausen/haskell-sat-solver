@@ -40,7 +40,7 @@ convertProg (s:ss)  = [h] ++ convertProg ss
 
 solve :: [String] -> Int -> String
 solve prog vars
-    | null sol = "UNSAT"
+    | null sols = "UNSAT"
     | otherwise = "SAT\n" ++ pprint sol
     where 
         sols    = [x | x <- permuts, isSolution x cprog vars]
