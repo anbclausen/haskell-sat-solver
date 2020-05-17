@@ -47,7 +47,7 @@ permut n = r ++ f
 isSolution :: [Int] -> [String] -> Bool
 isSolution sol (s:ss) 
     | end && clauseSatisfied clau sol   = True
-    | clauseSatisfied clau sol          = True && isSolution sol ss
+    | clauseSatisfied clau sol          = isSolution sol ss
     | otherwise                         = False
     where 
         clau    = map read $ words $ init s
