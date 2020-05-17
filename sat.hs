@@ -1,11 +1,15 @@
 import System.Environment
+import Data.Time.Clock.POSIX
 
 main :: IO()
 main = do  
     args <- getArgs
     contents <- readFile (args !! 0)
     let l = lines contents
+    before <- getPOSIXTime
     putStrLn $ clean l
+    after <- getPOSIXTime
+    putStrLn $ "CPU time: " ++ show (after - before)
 
 clean :: [String] -> String
 clean (h:t)
@@ -28,13 +32,20 @@ pprint list
         h = head list
         t = tail list
 
+convertProg :: [String] -> [[Int]]
+convertProg []      = []
+convertProg (s:ss)  = [h] ++ convertProg ss
+    where 
+        h = map read $ words $ init s
+
 solve :: [String] -> Int -> String
 solve prog vars
     | null sols = "UNSAT"
     | otherwise = "SAT\n" ++ pprint sol
     where 
-        sols    = [x | x <- permut vars, isSolution x prog]
+        sols    = [x | x <- permut vars, isSolution x cprog]
         sol     = head sols
+        cprog   = convertProg prog
 
 permut :: Int -> [[Int]]
 permut 1 = [[1], [-1]]
@@ -44,13 +55,12 @@ permut n = r ++ f
     r = [p ++ [n] | p <- prev]
     f = [p ++ [-n] | p <- prev]
 
-isSolution :: [Int] -> [String] -> Bool
+isSolution :: [Int] -> [[Int]] -> Bool
 isSolution sol (s:ss) 
-    | end && clauseSatisfied clau sol   = True
-    | clauseSatisfied clau sol          = isSolution sol ss
+    | end && clauseSatisfied s sol   = True
+    | clauseSatisfied s sol          = isSolution sol ss
     | otherwise                         = False
     where 
-        clau    = map read $ words $ init s
         end     = null ss
 
 clauseSatisfied :: [Int] -> [Int] -> Bool
