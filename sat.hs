@@ -41,19 +41,19 @@ convertProg (s:ss)  = [h] ++ convertProg ss
 solve :: [String] -> Int -> String
 solve prog vars
     | null sols = "UNSAT"
-    | otherwise = "SAT\n" ++ pprint sol
+    | otherwise = "SAT\n" ++ psol
     where 
         sols    = permut vars cprog
         sol     = head sols
         cprog   = convertProg prog
+        psol    = pprint $ reverse sol
 
 permut :: Int -> [[Int]] -> [[Int]]
 permut 1 _ = [[1], [-1]]
-permut n cprog = f ++ r
+permut n cprog = ps
   where
     prev    = permut (n-1) cprog
-    r       = [[n] ++ p | p <- prev, isSafe ([n] ++ p) cprog n]
-    f       = [[-n] ++ p | p <- prev, isSafe ([-n] ++ p) cprog n]
+    ps      = [x : p | p <- prev, x <- [n, -n], isSafe (x : p) cprog n]
 
 isSafe :: [Int] -> [[Int]] -> Int -> Bool
 isSafe _ [] _        = True
@@ -64,8 +64,9 @@ isSafe vars (c:cs) n
 safeClause :: [Int] -> [Int] -> Int -> Bool
 safeClause _ [] _           = False
 safeClause vars (l:cs) n
-    | (abs l) > n           = True
+    | pl > n                = True
     | l == vars !! i        = True
     | otherwise             = safeClause vars cs n
     where
-        i = n - abs l
+        i = n - pl
+        pl = abs l
