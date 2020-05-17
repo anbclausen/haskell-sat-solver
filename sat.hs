@@ -43,30 +43,29 @@ solve prog vars
     | null sols = "UNSAT"
     | otherwise = "SAT\n" ++ pprint sol
     where 
-        sols    = [x | x <- permuts, isSolution x cprog vars]
+        sols    = permut vars cprog
         sol     = head sols
         cprog   = convertProg prog
-        permuts = permut vars
 
-permut :: Int -> [[Int]]
-permut 1 = [[1], [-1]]
-permut n = f ++ r
+permut :: Int -> [[Int]] -> [[Int]]
+permut 1 _ = [[1], [-1]]
+permut n cprog = f ++ r
   where
-    prev = permut $ n-1
-    r = [[n] ++ p | p <- prev]
-    f = [[-n] ++ p | p <- prev]
+    prev    = permut (n-1) cprog
+    r       = [[n] ++ p | p <- prev, isSafe ([n] ++ p) cprog n]
+    f       = [[-n] ++ p | p <- prev, isSafe ([-n] ++ p) cprog n]
 
-isSolution :: [Int] -> [[Int]] -> Int -> Bool
-isSolution sol (s:ss) vars
-    | end && cSatis   = True
-    | cSatis          = isSolution sol ss vars
-    | otherwise       = False
-    where 
-        end     = null ss
-        cSatis  = clauseSatisfied s sol vars
+isSafe :: [Int] -> [[Int]] -> Int -> Bool
+isSafe _ [] _        = True
+isSafe vars (c:cs) n
+    | length c > n || safeClause vars c n   = isSafe vars cs n
+    | otherwise                             = False
 
-clauseSatisfied :: [Int] -> [Int] -> Int -> Bool
-clauseSatisfied [] sol vars      = False
-clauseSatisfied (c:cs) sol vars  = c == sol !! i || clauseSatisfied cs sol vars
-    where 
-        i = vars - abs c
+safeClause :: [Int] -> [Int] -> Int -> Bool
+safeClause _ [] _           = False
+safeClause vars (l:cs) n
+    | (abs l) > n           = True
+    | l == vars !! i        = True
+    | otherwise             = safeClause vars cs n
+    where
+        i = n - abs l
