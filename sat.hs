@@ -40,31 +40,33 @@ convertProg (s:ss)  = [h] ++ convertProg ss
 
 solve :: [String] -> Int -> String
 solve prog vars
-    | null sols = "UNSAT"
+    | null sol = "UNSAT"
     | otherwise = "SAT\n" ++ pprint sol
     where 
-        sols    = [x | x <- permut vars, isSolution x cprog]
+        sols    = [x | x <- permuts, isSolution x cprog vars]
         sol     = head sols
         cprog   = convertProg prog
+        permuts = permut vars
 
 permut :: Int -> [[Int]]
 permut 1 = [[1], [-1]]
-permut n = r ++ f
+permut n = f ++ r
   where
     prev = permut $ n-1
-    r = [p ++ [n] | p <- prev]
-    f = [p ++ [-n] | p <- prev]
+    r = [[n] ++ p | p <- prev]
+    f = [[-n] ++ p | p <- prev]
 
-isSolution :: [Int] -> [[Int]] -> Bool
-isSolution sol (s:ss) 
-    | end && clauseSatisfied s sol   = True
-    | clauseSatisfied s sol          = isSolution sol ss
-    | otherwise                         = False
+isSolution :: [Int] -> [[Int]] -> Int -> Bool
+isSolution sol (s:ss) vars
+    | end && cSatis   = True
+    | cSatis          = isSolution sol ss vars
+    | otherwise       = False
     where 
         end     = null ss
+        cSatis  = clauseSatisfied s sol vars
 
-clauseSatisfied :: [Int] -> [Int] -> Bool
-clauseSatisfied [] sol      = False
-clauseSatisfied (c:cs) sol  = c == sol !! i || clauseSatisfied cs sol
+clauseSatisfied :: [Int] -> [Int] -> Int -> Bool
+clauseSatisfied [] sol vars      = False
+clauseSatisfied (c:cs) sol vars  = c == sol !! i || clauseSatisfied cs sol vars
     where 
-        i = (abs c) -1
+        i = vars - abs c
