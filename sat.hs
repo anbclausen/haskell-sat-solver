@@ -27,9 +27,9 @@ clean (h:t)
 pprint :: [Int] -> String
 pprint list
     | list == []    = "0"
-    | otherwise     = show h ++ " " ++ pprint t
+    | otherwise     = h : ' ' : pprint t
     where
-        h = head list
+        h = (show $ head list) !! 0
         t = tail list
 
 convertProg :: [String] -> [[Int]]
@@ -46,7 +46,8 @@ solve prog vars
         sols    = permut vars cprog
         sol     = head sols
         cprog   = convertProg prog
-        psol    = pprint $ reverse sol
+        psol    = pprint sol
+
 
 permut :: Int -> [[Int]] -> [[Int]]
 permut 1 _ = [[1], [-1]]
@@ -68,5 +69,5 @@ safeClause vars (l:cs) n
     | l == vars !! i        = True
     | otherwise             = safeClause vars cs n
     where
-        i = n - pl
         pl = abs l
+        i = n - pl
