@@ -26,10 +26,10 @@ clean (h:t)
 
 pprint :: [Int] -> String
 pprint list
-    | list == []    = "0"
-    | otherwise     = h : ' ' : pprint t
+    | list == []    = ""
+    | otherwise     = h ++ ' ' : pprint t
     where
-        h = (show $ head list) !! 0
+        h = show $ head list
         t = tail list
 
 convertProg :: [String] -> [[Int]]
@@ -46,7 +46,7 @@ solve prog vars
         sols    = permut vars cprog
         sol     = head sols
         cprog   = convertProg prog
-        psol    = pprint sol
+        psol    = pprint $ reverse sol
 
 
 permut :: Int -> [[Int]] -> [[Int]]
